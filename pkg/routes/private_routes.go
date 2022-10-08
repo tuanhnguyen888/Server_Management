@@ -9,6 +9,10 @@ import (
 func PrivateRoutes(app *fiber.App) {
 	route := app.Group("api/v1")
 
-	route.Post("/server", middleware.JWTProtected(), controllers.CreateServer)
+	app.Post("/login", controllers.Login)
+
+	route.Post("/server", middleware.AuthRequired(), controllers.CreateServer)
+	route.Post("/server/:id", middleware.AuthRequired(), controllers.UpdateServer)
+	route.Delete("/server/:id", middleware.AuthRequired(), controllers.DeleteServer)
 
 }
