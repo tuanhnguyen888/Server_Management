@@ -87,7 +87,7 @@ func Login(ctx *fiber.Ctx) error {
 	// Create the Claims
 	claims := jwt.MapClaims{
 		"admin": true,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+		"exp":   time.Now().Add(time.Minute * time.Duration(20)).Unix(),
 	}
 
 	// Create token
@@ -115,6 +115,20 @@ func Login(ctx *fiber.Ctx) error {
 }
 
 func CreateServer(c *fiber.Ctx) error {
+	timeNow := time.Now().Unix()
+
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	expires := int64(claims["exp"].(float64))
+
+	if timeNow > expires {
+		// Return status 401 and unauthorized error message.
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
+
 	server := Server{}
 	err := c.BodyParser(&server)
 	if err != nil {
@@ -153,6 +167,8 @@ func CreateServer(c *fiber.Ctx) error {
 }
 
 func UpdateServer(c *fiber.Ctx) error {
+
+	// ----
 	id := c.Params("id")
 
 	u3, err := uuid.FromString(id)
