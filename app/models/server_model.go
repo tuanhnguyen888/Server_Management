@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -15,8 +14,8 @@ type Server struct {
 	Name      *string   `gorm:"uniqueIndex" json:"name" validate:"required"`
 	Status    *string   `json:"status" validate:"required"`
 	Ipv4      *string   `json:"ipvd4" validate:"required"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"update_at"`
+	CreatedAt int64     `json:"created_at"`
+	UpdatedAt int64     `json:"update_at"`
 }
 
 func (s Server) value() (driver.Value, error) {

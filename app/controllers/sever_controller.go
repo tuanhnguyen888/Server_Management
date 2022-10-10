@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,8 +20,8 @@ type Server struct {
 	Name      *string   ` json:"name" `
 	Status    *string   `json:"status" `
 	Ipv4      *string   `json:"ipv4" `
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"update_at"`
+	CreatedAt int64     `json:"created_at"`
+	UpdatedAt int64     `json:"update_at"`
 }
 
 func GetServers(c *fiber.Ctx) error {
@@ -32,7 +33,61 @@ func GetServers(c *fiber.Ctx) error {
 	}
 
 	servers := &[]models.Server{}
-	db.Find(&servers)
+
+	// ------ pagination ----------
+	page, _ := strconv.Atoi(c.Query("page"))
+	if page == 0 {
+		page = 1
+	}
+	perPage := 9
+	offset := (page - 1) * perPage
+
+	//  ------ sort -------
+	sort := c.Query("sort")
+	k := c.Query("kind")
+	if sort != "" {
+		db.Order(sort + " " + k).Offset(offset).Limit(perPage).Find(&servers)
+	} else {
+		db.Offset(offset).Limit(perPage).Find(&servers)
+	}
+
+	exportToExcel(*servers)
+
+	c.Status(http.StatusOK).JSON(
+		&fiber.Map{
+			"message": "server fetched",
+			"data":    servers,
+		})
+	return nil
+}
+
+func Search(c *fiber.Ctx) error {
+	// connect db
+	db, err := flatform.NewInit()
+	if err != nil {
+		fmt.Println("can not connect")
+		panic(err)
+	}
+
+	// ------ pagination ----------
+	page, _ := strconv.Atoi(c.Query("page"))
+	if page == 0 {
+		page = 1
+	}
+	perPage := 9
+	offset := (page - 1) * perPage
+
+	// ----search
+
+	servers := &[]models.Server{}
+	n := c.Query("name")
+	s := c.Query("status")
+
+	if s != "" && n != "" {
+		db.Where("name LIKE ? and status LIKE ? ", "%"+n+"%", s+"%").Offset(offset).Limit(perPage).Find((&servers))
+	} else {
+		db.Offset(offset).Limit(perPage).Find((&servers))
+	}
 
 	c.Status(http.StatusOK).JSON(
 		&fiber.Map{
@@ -128,7 +183,7 @@ func CreateServer(c *fiber.Ctx) error {
 			"msg":   "unauthorized, check expiration time of your token",
 		})
 	}
-
+	// ---------------
 	server := Server{}
 	err := c.BodyParser(&server)
 	if err != nil {
@@ -141,8 +196,8 @@ func CreateServer(c *fiber.Ctx) error {
 	if err != nil {
 		panic(err)
 	}
-	server.CreatedAt = time.Now()
-	server.UpdatedAt = time.Now()
+	server.CreatedAt = time.Now().UnixMilli()
+	server.UpdatedAt = time.Now().UnixMilli()
 
 	// connect db
 	db, err := flatform.NewInit()
@@ -167,7 +222,19 @@ func CreateServer(c *fiber.Ctx) error {
 }
 
 func UpdateServer(c *fiber.Ctx) error {
+	timeNow := time.Now().Unix()
 
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	expires := int64(claims["exp"].(float64))
+
+	if timeNow > expires {
+		// Return status 401 and unauthorized error message.
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": true,
+			"msg":   "unauthorized, check expiration time of your token",
+		})
+	}
 	// ----
 	id := c.Params("id")
 
@@ -185,7 +252,7 @@ func UpdateServer(c *fiber.Ctx) error {
 		return err
 	}
 
-	server.UpdatedAt = time.Now()
+	server.UpdatedAt = time.Now().UnixMilli()
 
 	// connect db
 	db, err := flatform.NewInit()
@@ -200,7 +267,7 @@ func UpdateServer(c *fiber.Ctx) error {
 			&fiber.Map{"message": "could not update Server"})
 		return err
 	}
-
+	server.ID = u3
 	c.Status(http.StatusOK).JSON(
 		&fiber.Map{
 			"message":       "server has been update",

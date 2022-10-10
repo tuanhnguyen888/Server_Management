@@ -10,4 +10,5 @@ func PublicRoutes(app *fiber.App) {
 
 	route.Get("/servers", controllers.GetServers)
 	route.Get("/server/:id", controllers.GetServerById)
+	route.Get("/search", controllers.Search)
 }

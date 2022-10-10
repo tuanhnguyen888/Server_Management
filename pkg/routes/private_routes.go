@@ -12,6 +12,7 @@ func PrivateRoutes(app *fiber.App) {
 	app.Post("/login", controllers.Login)
 
 	route.Post("/server", middleware.AuthRequired(), controllers.CreateServer)
+	route.Post("/importServerFromExcel", middleware.AuthRequired(), controllers.ImportExcel)
 	route.Post("/server/:id", middleware.AuthRequired(), controllers.UpdateServer)
 	route.Delete("/server/:id", middleware.AuthRequired(), controllers.DeleteServer)
 
