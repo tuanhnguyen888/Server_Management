@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"time"
 
@@ -57,7 +58,7 @@ func exportToExcel(servers []models.Server) {
 		f.SetCellValue("Sheet1", "B"+strconv.Itoa(i+2), string(StatusByte))
 		f.SetCellValue("Sheet1", "C"+strconv.Itoa(i+2), string(ipv4Byte))
 		f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), string(createTime))
-		f.SetCellValue("Sheet1", "D"+strconv.Itoa(i+2), string(updateTime))
+		f.SetCellValue("Sheet1", "E"+strconv.Itoa(i+2), string(updateTime))
 
 	}
 
@@ -73,14 +74,14 @@ func exportToExcel(servers []models.Server) {
 // }
 
 func ImportExcel(c *fiber.Ctx) error {
-	xlsx, err := excelize.OpenFile("./importServer.xlsx")
+	xlsx, err := excelize.OpenFile("./listOfServers.xlsx")
 	if err != nil {
 		c.Status(http.StatusBadRequest).JSON(
 			&fiber.Map{"message": "could not import Server"})
 		return err
 	}
 
-	rows := xlsx.GetRows("Sheet1")
+	rows := xlsx.GetRows("servers")
 
 	var strGoodImport []string
 
@@ -92,9 +93,17 @@ func ImportExcel(c *fiber.Ctx) error {
 		if err != nil {
 			panic(err)
 		}
+
 		server.Name = &rows[i][0]
-		server.Status = &rows[i][1]
-		server.Ipv4 = &rows[i][2]
+
+		server.Ipv4 = &rows[i][1]
+
+		_, err := exec.Command("ping", *server.Ipv4).Output()
+		if err != nil {
+			server.Status = true
+		} else {
+			server.Status = false
+		}
 
 		server.CreatedAt = time.Now().UnixMilli()
 		server.UpdatedAt = time.Now().UnixMilli()

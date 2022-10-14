@@ -11,9 +11,9 @@ import (
 
 type Server struct {
 	ID        uuid.UUID `json:"id" validate:"required,uuid" `
-	Name      *string   `gorm:"uniqueIndex" json:"name" validate:"required"`
-	Status    *string   `json:"status" validate:"required"`
-	Ipv4      *string   `json:"ipvd4" validate:"required"`
+	Name      *string   `gorm:"uniqueIndex" json:"name"`
+	Status    bool      `json:"status"`
+	Ipv4      *string   `json:"ipvd4" `
 	CreatedAt int64     `json:"created_at"`
 	UpdatedAt int64     `json:"update_at"`
 }

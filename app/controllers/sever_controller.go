@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"time"
 
@@ -18,7 +19,7 @@ import (
 type Server struct {
 	ID        uuid.UUID `json:"id"`
 	Name      *string   ` json:"name" `
-	Status    *string   `json:"status" `
+	Status    bool      `json:"status" `
 	Ipv4      *string   `json:"ipv4" `
 	CreatedAt int64     `json:"created_at"`
 	UpdatedAt int64     `json:"update_at"`
@@ -39,7 +40,7 @@ func GetServers(c *fiber.Ctx) error {
 	if page == 0 {
 		page = 1
 	}
-	perPage := 9
+	perPage := 10
 	offset := (page - 1) * perPage
 
 	//  ------ sort -------
@@ -74,19 +75,26 @@ func Search(c *fiber.Ctx) error {
 	if page == 0 {
 		page = 1
 	}
-	perPage := 9
+	perPage := 10
 	offset := (page - 1) * perPage
 
 	// ----search
 
 	servers := &[]models.Server{}
 	n := c.Query("name")
-	s := c.Query("status")
 
-	if s != "" && n != "" {
-		db.Where("name LIKE ? and status LIKE ? ", "%"+n+"%", s+"%").Offset(offset).Limit(perPage).Find((&servers))
+	if n != "" {
+		db.Where("name LIKE ?  ", "%"+n+"%").Offset(offset).Limit(perPage).Find((&servers))
 	} else {
 		db.Offset(offset).Limit(perPage).Find((&servers))
+	}
+
+	if len(*servers) == 0 {
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message": "Can't find the right servers",
+			})
+		return nil
 	}
 
 	c.Status(http.StatusOK).JSON(
@@ -158,6 +166,7 @@ func Login(ctx *fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": s,
+		"admin": claims["admin"],
 		"user": struct {
 			Id    int    `json:"id"`
 			Email string `json:"email"`
@@ -198,6 +207,13 @@ func CreateServer(c *fiber.Ctx) error {
 	}
 	server.CreatedAt = time.Now().UnixMilli()
 	server.UpdatedAt = time.Now().UnixMilli()
+
+	_, err = exec.Command("ping", *server.Ipv4).Output()
+	if err != nil {
+		server.Status = true
+	} else {
+		server.Status = false
+	}
 
 	// connect db
 	db, err := flatform.NewInit()
@@ -252,6 +268,12 @@ func UpdateServer(c *fiber.Ctx) error {
 		return err
 	}
 
+	_, err = exec.Command("ping", *server.Ipv4).Output()
+	if err != nil {
+		server.Status = true
+	} else {
+		server.Status = false
+	}
 	server.UpdatedAt = time.Now().UnixMilli()
 
 	// connect db
@@ -267,6 +289,7 @@ func UpdateServer(c *fiber.Ctx) error {
 			&fiber.Map{"message": "could not update Server"})
 		return err
 	}
+
 	server.ID = u3
 	c.Status(http.StatusOK).JSON(
 		&fiber.Map{

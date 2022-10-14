@@ -28,8 +28,14 @@ func main() {
 	routes.PrivateRoutes(app)
 	routes.PublicRoutes(app)
 
-	//
+	// -------- CRON -----------
 
+	// var ctx *fiber.Ctx
+
+	// c := cron.New()
+	// c.AddFunc("@every 0h0m5s", func() { controllers.UpdateServer(ctx) })
+	// c.Start()
+	// controllers.Cron()
 	//
 
 	if err := app.Listen(":5000"); err != nil {
