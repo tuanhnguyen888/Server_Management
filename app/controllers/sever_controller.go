@@ -10,7 +10,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid"
-
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
 	"github.com/tuanhnguyen888/Server_Management/flatform"
@@ -150,7 +149,7 @@ func Login(ctx *fiber.Ctx) error {
 	// Create the Claims
 	claims := jwt.MapClaims{
 		"admin": true,
-		"exp":   time.Now().Add(time.Minute * time.Duration(20)).Unix(),
+		"exp":   time.Now().Add(time.Minute * time.Duration(50)).Unix(),
 	}
 
 	// Create token
@@ -208,6 +207,7 @@ func CreateServer(c *fiber.Ctx) error {
 	server.CreatedAt = time.Now().UnixMilli()
 	server.UpdatedAt = time.Now().UnixMilli()
 
+	// pinggg net
 	_, err = exec.Command("ping", *server.Ipv4).Output()
 	if err != nil {
 		server.Status = true
@@ -270,9 +270,9 @@ func UpdateServer(c *fiber.Ctx) error {
 
 	_, err = exec.Command("ping", *server.Ipv4).Output()
 	if err != nil {
-		server.Status = true
-	} else {
 		server.Status = false
+	} else {
+		server.Status = true
 	}
 	server.UpdatedAt = time.Now().UnixMilli()
 

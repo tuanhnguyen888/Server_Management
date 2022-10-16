@@ -74,7 +74,11 @@ func exportToExcel(servers []models.Server) {
 // }
 
 func ImportExcel(c *fiber.Ctx) error {
-	xlsx, err := excelize.OpenFile("./listOfServers.xlsx")
+	type error interface {
+		Error() string
+	}
+
+	xlsx, err := excelize.OpenFile("./demoImport.xlsx")
 	if err != nil {
 		c.Status(http.StatusBadRequest).JSON(
 			&fiber.Map{"message": "could not import Server"})
@@ -87,18 +91,37 @@ func ImportExcel(c *fiber.Ctx) error {
 
 	var errImports []string
 
+	// connect db
+	db, err := flatform.NewInit()
+	if err != nil {
+		fmt.Println("can not connect")
+		panic(err)
+	}
+
+	allServers := []Server{}
+	db.Find(&allServers)
+
 	for i := 1; i < (len(rows)); i++ {
 		server := Server{}
 		server.ID, err = uuid.NewV1()
 		if err != nil {
 			panic(err)
 		}
-
 		server.Name = &rows[i][0]
-
 		server.Ipv4 = &rows[i][1]
 
-		_, err := exec.Command("ping", *server.Ipv4).Output()
+		sameName := false
+		for _, s := range allServers {
+			if *server.Name == *s.Name {
+				errImports = append(errImports, *server.Name+" - "+*server.Ipv4+", Error : "+"duplicate key value violates unique constraint")
+				sameName = true
+			}
+		}
+		if sameName {
+			continue
+		}
+
+		_, err = exec.Command("ping", *server.Ipv4).Output()
 		if err != nil {
 			server.Status = true
 		} else {
@@ -108,20 +131,12 @@ func ImportExcel(c *fiber.Ctx) error {
 		server.CreatedAt = time.Now().UnixMilli()
 		server.UpdatedAt = time.Now().UnixMilli()
 
-		// connect db
-		db, err := flatform.NewInit()
-		if err != nil {
-			fmt.Println("can not connect")
-			panic(err)
-		}
-
 		err = db.Create(&server).Error
 		if err != nil {
-			errImports = append(errImports, rows[i][0])
+			errImports = append(errImports, *server.Name+" - "+*server.Ipv4+", Error : "+err.Error())
 
-		}
-		if err == nil {
-			strGoodImport = append(strGoodImport, *server.Name)
+		} else {
+			strGoodImport = append(strGoodImport, *server.Name+" - "+*server.Ipv4)
 		}
 	}
 	c.Status(http.StatusOK).JSON(

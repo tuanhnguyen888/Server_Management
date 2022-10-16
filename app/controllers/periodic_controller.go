@@ -3,11 +3,10 @@ package controllers
 import (
 	"crypto/tls"
 	"fmt"
-	"math/rand"
-	"net/http"
+	"os/exec"
+	"strconv"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
 	"github.com/tuanhnguyen888/Server_Management/flatform"
 	gomail "gopkg.in/gomail.v2"
@@ -16,12 +15,14 @@ import (
 
 func Cron() {
 	c := cron.New()
-	c.AddFunc("@every 0h0m5s", sendEmail)
+
+	c.AddFunc("24 16 * * *", sendEmail)
+	c.AddFunc("34 16 * * *", UpdateServerPeriodic)
 	c.Start()
 
 }
 
-func updateServerPeriodic(c *fiber.Ctx) error {
+func UpdateServerPeriodic() {
 	db, err := flatform.NewInit()
 	if err != nil {
 		fmt.Println("can not connect")
@@ -31,28 +32,33 @@ func updateServerPeriodic(c *fiber.Ctx) error {
 	servers := []Server{}
 	db.Find(&servers)
 
-	i := rand.Intn(len(servers))
-	// on := "on"
-	// off := "off"
+	for _, server := range servers {
 
-	// if *servers[i].Status == "off" {
-	// 	*servers[i].Status = "on"
-	// } else {
-	// 	*servers[i].Status = "off"
-	// }
+		_, err1 := exec.Command("ping", *server.Ipv4).Output()
+		if (err1 != nil) && (server.Status) {
+			server.Status = !server.Status
+			err = db.Where("name = ? ", server.Name).Updates(&server).Error
+			if err != nil {
+				fmt.Println("message : could not update Server " + *server.Ipv4)
+				continue
+			}
+			fmt.Println(*server.Ipv4 + " has been update ON -> OFF")
+			continue
+		}
 
-	err = db.Where("id = ? ", servers[i].ID).Updates(&servers[i]).Error
-	if err != nil {
-		c.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not update Server"})
-		return err
+		if (err1 == nil) && (!server.Status) {
+			server.Status = !server.Status
+			err = db.Where("name = ? ", server.Name).Updates(&server).Error
+			if err != nil {
+				fmt.Println("message : could not update Server " + *server.Ipv4)
+				continue
+			}
+			fmt.Println(*server.Ipv4 + " has been update OFF -> ON")
+			continue
+		}
+
 	}
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message":       "server has been update",
-			"server update": servers[i],
-		})
-	return nil
+
 }
 
 func sendEmail() {
@@ -69,19 +75,20 @@ func sendEmail() {
 		panic(err)
 	}
 
-	db.Find(servers)
+	db.Find(&servers)
 	serverOn := 0
 	serverOff := 0
 
 	for _, server := range servers {
-		if server.Status == true {
+		if server.Status {
 			serverOn++
 		} else {
 			serverOff++
 		}
 	}
 
-	msg := "success h1 h1h1h"
+	msg := "on :" + strconv.Itoa(serverOn) + "\n" + "off : " + strconv.Itoa(serverOff)
+
 	m := gomail.NewMessage()
 	m.SetHeader("From", mail)
 	m.SetHeader("To", "nguyentuanh5527@gmail.com")
