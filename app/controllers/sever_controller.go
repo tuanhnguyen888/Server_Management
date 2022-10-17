@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os/exec"
@@ -12,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
-	"github.com/tuanhnguyen888/Server_Management/flatform"
 )
 
 type Server struct {
@@ -24,104 +22,110 @@ type Server struct {
 	UpdatedAt int64     `json:"update_at"`
 }
 
-func GetServers(c *fiber.Ctx) error {
+/* Summarize:
+1. The DB instance should be initialized when init app/service and be reused for API.
+2. Golang tends to deal every thing with errors instead of raising errors. Therefor every logic function should return
+an error if existing then we will define an appropriate behavior for each error.
+3. Controller needs to handle errors and response status code correctly.
+4. Read the comments in GetServers then correct all the mistakes for all APIs.
+*/
+
+func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
+	// TODO: init a db instance in main.go then use it for all APIs instead of creating as many as instances for each user request
+	return func(c *fiber.Ctx) error {
+		servers := &[]models.Server{}
 
-	servers := &[]models.Server{}
+		// ------ pagination ----------
+		page, _ := strconv.Atoi(c.Query("page"))
+		if page == 0 {
+			page = 1
+		}
+		perPage := 10
+		offset := (page - 1) * perPage
 
-	// ------ pagination ----------
-	page, _ := strconv.Atoi(c.Query("page"))
-	if page == 0 {
-		page = 1
-	}
-	perPage := 10
-	offset := (page - 1) * perPage
+		//  ------ sort -------
+		sort := c.Query("sort")
+		k := c.Query("kind")
+		if sort != "" {
+			r.DB.Order(sort + " " + k).Offset(offset).Limit(perPage).Find(&servers)
+		} else {
+			r.DB.Offset(offset).Limit(perPage).Find(&servers)
+		}
 
-	//  ------ sort -------
-	sort := c.Query("sort")
-	k := c.Query("kind")
-	if sort != "" {
-		db.Order(sort + " " + k).Offset(offset).Limit(perPage).Find(&servers)
-	} else {
-		db.Offset(offset).Limit(perPage).Find(&servers)
-	}
-
-	exportToExcel(*servers)
-
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message": "server fetched",
-			"data":    servers,
-		})
-	return nil
-}
-
-func Search(c *fiber.Ctx) error {
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
-
-	// ------ pagination ----------
-	page, _ := strconv.Atoi(c.Query("page"))
-	if page == 0 {
-		page = 1
-	}
-	perPage := 10
-	offset := (page - 1) * perPage
-
-	// ----search
-
-	servers := &[]models.Server{}
-	n := c.Query("name")
-
-	if n != "" {
-		db.Where("name LIKE ?  ", "%"+n+"%").Offset(offset).Limit(perPage).Find((&servers))
-	} else {
-		db.Offset(offset).Limit(perPage).Find((&servers))
-	}
-
-	if len(*servers) == 0 {
+		// TODO: refactor exportToExcel to return an error then handle it
+		err := exportToExcel(*servers)
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{
+					"message": "could not export excel",
+				})
+		}
+		// TODO: Handle error for JSON method
 		c.Status(http.StatusOK).JSON(
 			&fiber.Map{
-				"message": "Can't find the right servers",
+				"message": "server fetched",
+				"data":    servers,
+			})
+
+		return nil
+		// TODO: if an error happens, handle it with correct response status codes.
+		// e.g: an API should return 200 for successful, 400 if request params are invalid, 500 if an error like DB connection error occurs
+		// For more details, visit https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+	}
+}
+
+func Search(r *models.Repository) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		// ------ pagination ----------
+		page, _ := strconv.Atoi(c.Query("page"))
+		if page == 0 {
+			page = 1
+		}
+		perPage := 10
+		offset := (page - 1) * perPage
+
+		// ----search
+
+		servers := &[]models.Server{}
+		n := c.Query("name")
+
+		if n != "" {
+			r.DB.Where("name LIKE ?  ", "%"+n+"%").Offset(offset).Limit(perPage).Find((&servers))
+		} else {
+			r.DB.Offset(offset).Limit(perPage).Find((&servers))
+		}
+
+		if len(*servers) == 0 {
+			c.Status(http.StatusOK).JSON(
+				&fiber.Map{
+					"message": "Can't find the right servers",
+				})
+		}
+
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message": "server fetched",
+				"data":    servers,
 			})
 		return nil
 	}
-
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message": "server fetched",
-			"data":    servers,
-		})
-	return nil
 }
 
-func GetServerById(c *fiber.Ctx) error {
-	id := c.Params("id")
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
+func GetServerById(r *models.Repository) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
+
+		server := &models.Server{}
+		r.DB.Where("id = ?", id).Find(&server)
+
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message": "server fetched",
+				"data":    server,
+			})
+		return nil
 	}
-
-	server := &models.Server{}
-	db.Where("id = ?", id).Find(&server)
-
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message": "server fetched",
-			"data":    server,
-		})
-	return nil
 }
 
 func Login(ctx *fiber.Ctx) error {
@@ -136,14 +140,12 @@ func Login(ctx *fiber.Ctx) error {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "cannot parse json",
 		})
-		return nil
 	}
 
 	if body.Email != "tuanh@gmail.com" || body.Password != "khong123" {
 		ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Bad Credentials",
 		})
-		return nil
 	}
 
 	// Create the Claims
@@ -159,8 +161,9 @@ func Login(ctx *fiber.Ctx) error {
 
 	s, err := token.SignedString([]byte("secret"))
 	if err != nil {
-		ctx.SendStatus(fiber.StatusInternalServerError)
-		return nil
+		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "cannot singed tolen",
+		})
 	}
 
 	ctx.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -177,155 +180,137 @@ func Login(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func CreateServer(c *fiber.Ctx) error {
-	timeNow := time.Now().Unix()
+func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		timeNow := time.Now().Unix()
 
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	expires := int64(claims["exp"].(float64))
+		user := c.Locals("user").(*jwt.Token)
+		claims := user.Claims.(jwt.MapClaims)
+		expires := int64(claims["exp"].(float64))
 
-	if timeNow > expires {
-		// Return status 401 and unauthorized error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   "unauthorized, check expiration time of your token",
-		})
+		if timeNow > expires {
+			// Return status 401 and unauthorized error message.
+			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": true,
+				"msg":   "unauthorized, check expiration time of your token",
+			})
+		}
+		// ---------------
+		server := Server{}
+		err := c.BodyParser(&server)
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "not request"})
+		}
+
+		server.ID, err = uuid.NewV1()
+		if err != nil {
+			panic(err)
+		}
+		server.CreatedAt = time.Now().UnixMilli()
+		server.UpdatedAt = time.Now().UnixMilli()
+
+		// pinggg net
+		_, err = exec.Command("ping", *server.Ipv4).Output()
+		if err != nil {
+			server.Status = true
+		} else {
+			server.Status = false
+		}
+
+		err = r.DB.Create(&server).Error
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "could not create Server"})
+		}
+
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message":      "server has been added",
+				"server added": server,
+			})
+		return nil
 	}
-	// ---------------
-	server := Server{}
-	err := c.BodyParser(&server)
-	if err != nil {
-		c.Status(http.StatusUnprocessableEntity).JSON(
-			&fiber.Map{"message": "not request"})
-		return err
-	}
-
-	server.ID, err = uuid.NewV1()
-	if err != nil {
-		panic(err)
-	}
-	server.CreatedAt = time.Now().UnixMilli()
-	server.UpdatedAt = time.Now().UnixMilli()
-
-	// pinggg net
-	_, err = exec.Command("ping", *server.Ipv4).Output()
-	if err != nil {
-		server.Status = true
-	} else {
-		server.Status = false
-	}
-
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
-
-	err = db.Create(&server).Error
-	if err != nil {
-		c.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not create Server"})
-		return err
-	}
-
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message":      "server has been added",
-			"server added": server,
-		})
-	return nil
 }
 
-func UpdateServer(c *fiber.Ctx) error {
-	timeNow := time.Now().Unix()
+func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		timeNow := time.Now().Unix()
 
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	expires := int64(claims["exp"].(float64))
+		user := c.Locals("user").(*jwt.Token)
+		claims := user.Claims.(jwt.MapClaims)
+		expires := int64(claims["exp"].(float64))
 
-	if timeNow > expires {
-		// Return status 401 and unauthorized error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   "unauthorized, check expiration time of your token",
-		})
+		if timeNow > expires {
+			// Return status 401 and unauthorized error message.
+			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": true,
+				"msg":   "unauthorized, check expiration time of your token",
+			})
+		}
+		// ----
+		id := c.Params("id")
+
+		u3, err := uuid.FromString(id)
+		if err != nil {
+			log.Fatalf("failed to parse UUID %q: %v", id, err)
+		}
+
+		server := Server{}
+		err = c.BodyParser(&server)
+
+		if err != nil {
+			c.Status(http.StatusUnprocessableEntity).JSON(
+				&fiber.Map{"message": "not request"})
+		}
+
+		_, err = exec.Command("ping", *server.Ipv4).Output()
+		if err != nil {
+			server.Status = false
+		} else {
+			server.Status = true
+		}
+		server.UpdatedAt = time.Now().UnixMilli()
+
+		err = r.DB.Where("id = ? ", u3).Updates(&server).Error
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "could not update Server"})
+		}
+
+		server.ID = u3
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message":       "server has been update",
+				"server update": server,
+			})
+		return nil
 	}
-	// ----
-	id := c.Params("id")
 
-	u3, err := uuid.FromString(id)
-	if err != nil {
-		log.Fatalf("failed to parse UUID %q: %v", id, err)
-	}
-
-	server := Server{}
-	err = c.BodyParser(&server)
-
-	if err != nil {
-		c.Status(http.StatusUnprocessableEntity).JSON(
-			&fiber.Map{"message": "not request"})
-		return err
-	}
-
-	_, err = exec.Command("ping", *server.Ipv4).Output()
-	if err != nil {
-		server.Status = false
-	} else {
-		server.Status = true
-	}
-	server.UpdatedAt = time.Now().UnixMilli()
-
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
-
-	err = db.Where("id = ? ", u3).Updates(&server).Error
-	if err != nil {
-		c.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not update Server"})
-		return err
-	}
-
-	server.ID = u3
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message":       "server has been update",
-			"server update": server,
-		})
-	return nil
 }
 
-func DeleteServer(c *fiber.Ctx) error {
-	id := c.Params("id")
+func DeleteServer(r *models.Repository) func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
 
-	u3, err := uuid.FromString(id)
-	if err != nil {
-		log.Fatalf("failed to parse UUID %q: %v", id, err)
+		u3, err := uuid.FromString(id)
+		if err != nil {
+			log.Fatalf("failed to parse UUID %q: %v", id, err)
+		}
+
+		server := Server{}
+
+		err = r.DB.Delete(&server, u3).Error
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "could not delete Server"})
+		}
+
+		c.Status(http.StatusOK).JSON(
+			&fiber.Map{
+				"message": "server has been deleted",
+			})
+		return nil
 	}
 
-	server := Server{}
-
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
-
-	err = db.Delete(&server, u3).Error
-	if err != nil {
-		c.Status(http.StatusBadRequest).JSON(
-			&fiber.Map{"message": "could not delete Server"})
-		return err
-	}
-
-	c.Status(http.StatusOK).JSON(
-		&fiber.Map{
-			"message": "server has been deleted",
-		})
-	return nil
 }

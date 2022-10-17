@@ -15,7 +15,7 @@ import (
 	"github.com/tuanhnguyen888/Server_Management/flatform"
 )
 
-func exportToExcel(servers []models.Server) {
+func exportToExcel(servers []models.Server) error {
 	f := excelize.NewFile()
 
 	index := f.NewSheet("Sheet1")
@@ -32,26 +32,32 @@ func exportToExcel(servers []models.Server) {
 	for i, server := range servers {
 		SNByte, err := json.Marshal(server.Name)
 		if err != nil {
-			panic(err)
+			// This is not recommended to raise an error without handle it (with recover). This function should return
+			// an error instead. The Controller then should handle this error.
+			// The function should look like: func exportToExcel(servers []models.Server) error {...}
+			// if err != nil { return err }
+			// TODO: fix for other cases
+
+			return err
 		}
 		StatusByte, err := json.Marshal(server.Status)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		ipv4Byte, err := json.Marshal(server.Ipv4)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		createTime, err := json.Marshal(time.UnixMilli(server.CreatedAt))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		updateTime, err := json.Marshal(time.UnixMilli(server.UpdatedAt))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		f.SetCellValue("Sheet1", "A"+strconv.Itoa(i+2), string(SNByte))
@@ -64,9 +70,9 @@ func exportToExcel(servers []models.Server) {
 
 	// save xlsx file by the given path
 	if err := f.SaveAs("Server.xlsx"); err != nil {
-		panic(err)
+		return err
 	}
-
+	return nil
 }
 
 // type ErrImport struct {
@@ -95,7 +101,7 @@ func ImportExcel(c *fiber.Ctx) error {
 	db, err := flatform.NewInit()
 	if err != nil {
 		fmt.Println("can not connect")
-		panic(err)
+		return err
 	}
 
 	allServers := []Server{}
@@ -105,7 +111,7 @@ func ImportExcel(c *fiber.Ctx) error {
 		server := Server{}
 		server.ID, err = uuid.NewV1()
 		if err != nil {
-			panic(err)
+			return err
 		}
 		server.Name = &rows[i][0]
 		server.Ipv4 = &rows[i][1]
@@ -113,7 +119,8 @@ func ImportExcel(c *fiber.Ctx) error {
 		sameName := false
 		for _, s := range allServers {
 			if *server.Name == *s.Name {
-				errImports = append(errImports, *server.Name+" - "+*server.Ipv4+", Error : "+"duplicate key value violates unique constraint")
+				// TODO: use fmt.Sprintf("Hello %s. Nice to meet you. I'm %d", "Tu Anh", 22) to concat string for ease of reading.
+				errImports = append(errImports, fmt.Sprintf("%s - %s, Error : duplicate key value violates unique constraint", *server.Name, *server.Ipv4))
 				sameName = true
 			}
 		}
@@ -133,10 +140,10 @@ func ImportExcel(c *fiber.Ctx) error {
 
 		err = db.Create(&server).Error
 		if err != nil {
-			errImports = append(errImports, *server.Name+" - "+*server.Ipv4+", Error : "+err.Error())
+			errImports = append(errImports, fmt.Sprintf(" %s - %s, Error :  %s", *server.Name, *server.Ipv4, err.Error()))
 
 		} else {
-			strGoodImport = append(strGoodImport, *server.Name+" - "+*server.Ipv4)
+			strGoodImport = append(strGoodImport, fmt.Sprintf("%s - %s ", *server.Name, *server.Ipv4))
 		}
 	}
 	c.Status(http.StatusOK).JSON(

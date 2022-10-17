@@ -19,6 +19,10 @@ func main() {
 		panic(err)
 	}
 
+	r := models.Repository{
+		DB: db,
+	}
+
 	err = models.MigrateServer(db)
 	if err != nil {
 		panic(err)
@@ -26,15 +30,19 @@ func main() {
 
 	app := fiber.New()
 	//
-	routes.PrivateRoutes(app)
-	routes.PublicRoutes(app)
+
+	routes.PublicRoutes(app, &r)
+	routes.PrivateRoutes(app, &r)
 
 	// -------- CRON -----------
 
-	controllers.Cron()
+	controllers.Cron(&r)
 
 	if err := app.Listen(":5000"); err != nil {
 		log.Printf(" Server is not running! Reason: %v", err)
+		// should use log.Fatal instead to terminate the program when cannot start service.
+		// e.g: log.Fatal(app.Listen(":5000"))
+		log.Fatal(err)
 	}
 
 }

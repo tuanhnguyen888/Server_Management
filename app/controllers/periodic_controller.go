@@ -3,6 +3,7 @@ package controllers
 import (
 	"crypto/tls"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"time"
@@ -12,15 +13,6 @@ import (
 	gomail "gopkg.in/gomail.v2"
 	"gopkg.in/robfig/cron.v2"
 )
-
-func Cron() {
-	c := cron.New()
-
-	c.AddFunc("24 16 * * *", sendEmail)
-	c.AddFunc("34 16 * * *", UpdateServerPeriodic)
-	c.Start()
-
-}
 
 func UpdateServerPeriodic() {
 	db, err := flatform.NewInit()
@@ -61,21 +53,16 @@ func UpdateServerPeriodic() {
 
 }
 
-func sendEmail() {
+func (r models.Repository) SendEmail() {
 	var (
-		mail = "tuanhnguyen886@gmail.com"
-		pwd  = "jojhndlzzthmfend"
+		mail = os.Getenv("EMAIL_ACCOUNT")
+		pwd  = os.Getenv("EMAIL_PASSWPRD")
 	)
 
 	servers := []models.Server{}
-	// connect db
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
 
-	db.Find(&servers)
+	r.DB.Find(&servers)
+
 	serverOn := 0
 	serverOff := 0
 
@@ -87,7 +74,7 @@ func sendEmail() {
 		}
 	}
 
-	msg := "on :" + strconv.Itoa(serverOn) + "\n" + "off : " + strconv.Itoa(serverOff)
+	msg := fmt.Sprintf("SERVERS ON : %s \n SERVERS OFF : %s ", strconv.Itoa(serverOn), strconv.Itoa(serverOff))
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", mail)
@@ -102,6 +89,19 @@ func sendEmail() {
 	// send
 	time.Sleep(time.Second * 10)
 	if err := d.DialAndSend(m); err != nil {
+		// TODO: this function should return an error: sendEmail(receivers []string) error
+		// panic here will make program/service stop, which is an unexpected behavior.
 		panic(err)
 	}
+}
+
+func Cron(r *models.Repository) {
+	c := cron.New()
+
+	// TODO: handle errors
+	// use it instead: https://github.com/jasonlvhit/gocron
+	c.AddFunc("32 16 * * *", r.SendEmail)
+	// c.AddFunc("34 16 * * *", UpdateServerPeriodic)
+	c.Start()
+
 }
