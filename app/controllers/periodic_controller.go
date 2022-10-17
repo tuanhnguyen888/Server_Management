@@ -3,33 +3,28 @@ package controllers
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
-	"github.com/tuanhnguyen888/Server_Management/flatform"
 	gomail "gopkg.in/gomail.v2"
-	"gopkg.in/robfig/cron.v2"
 )
 
-func UpdateServerPeriodic() {
-	db, err := flatform.NewInit()
-	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
-	}
+func UpdateServerPeriodic(r *models.Repository) {
 
 	servers := []Server{}
-	db.Find(&servers)
+	r.DB.Find(&servers)
 
 	for _, server := range servers {
 
-		_, err1 := exec.Command("ping", *server.Ipv4).Output()
-		if (err1 != nil) && (server.Status) {
+		_, err := exec.Command("ping", *server.Ipv4).Output()
+		if (err != nil) && (server.Status) {
 			server.Status = !server.Status
-			err = db.Where("name = ? ", server.Name).Updates(&server).Error
+			err = r.DB.Where("name = ? ", server.Name).Updates(&server).Error
 			if err != nil {
 				fmt.Println("message : could not update Server " + *server.Ipv4)
 				continue
@@ -38,9 +33,9 @@ func UpdateServerPeriodic() {
 			continue
 		}
 
-		if (err1 == nil) && (!server.Status) {
+		if (err == nil) && (!server.Status) {
 			server.Status = !server.Status
-			err = db.Where("name = ? ", server.Name).Updates(&server).Error
+			err = r.DB.Where("name = ? ", server.Name).Updates(&server).Error
 			if err != nil {
 				fmt.Println("message : could not update Server " + *server.Ipv4)
 				continue
@@ -53,11 +48,13 @@ func UpdateServerPeriodic() {
 
 }
 
-func (r models.Repository) SendEmail() {
-	var (
-		mail = os.Getenv("EMAIL_ACCOUNT")
-		pwd  = os.Getenv("EMAIL_PASSWPRD")
-	)
+func SendEmail(r *models.Repository) {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal(err)
+	}
+	mail := os.Getenv("EMAIL_ACCOUNT")
+	pwd := os.Getenv("EMAIL_PASSWPRD")
 
 	servers := []models.Server{}
 
@@ -91,17 +88,6 @@ func (r models.Repository) SendEmail() {
 	if err := d.DialAndSend(m); err != nil {
 		// TODO: this function should return an error: sendEmail(receivers []string) error
 		// panic here will make program/service stop, which is an unexpected behavior.
-		panic(err)
+		log.Fatal(err)
 	}
-}
-
-func Cron(r *models.Repository) {
-	c := cron.New()
-
-	// TODO: handle errors
-	// use it instead: https://github.com/jasonlvhit/gocron
-	c.AddFunc("32 16 * * *", r.SendEmail)
-	// c.AddFunc("34 16 * * *", UpdateServerPeriodic)
-	c.Start()
-
 }

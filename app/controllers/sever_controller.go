@@ -23,7 +23,7 @@ type Server struct {
 }
 
 /* Summarize:
-1. The DB instance should be initialized when init app/service and be reused for API.
+1. (DONE) The DB instance should be initialized when init app/service and be reused for API.
 2. Golang tends to deal every thing with errors instead of raising errors. Therefor every logic function should return
 an error if existing then we will define an appropriate behavior for each error.
 3. Controller needs to handle errors and response status code correctly.
@@ -32,7 +32,7 @@ an error if existing then we will define an appropriate behavior for each error.
 
 func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 	// connect db
-	// TODO: init a db instance in main.go then use it for all APIs instead of creating as many as instances for each user request
+	// TODO (DONE) : init a db instance in main.go then use it for all APIs instead of creating as many as instances for each user request
 	return func(c *fiber.Ctx) error {
 		servers := &[]models.Server{}
 
@@ -53,7 +53,7 @@ func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 			r.DB.Offset(offset).Limit(perPage).Find(&servers)
 		}
 
-		// TODO: refactor exportToExcel to return an error then handle it
+		// TODO (DONE): refactor exportToExcel to return an error then handle it
 		err := exportToExcel(*servers)
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
@@ -97,7 +97,7 @@ func Search(r *models.Repository) func(c *fiber.Ctx) error {
 		}
 
 		if len(*servers) == 0 {
-			c.Status(http.StatusOK).JSON(
+			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{
 					"message": "Can't find the right servers",
 				})
@@ -205,7 +205,8 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 
 		server.ID, err = uuid.NewV1()
 		if err != nil {
-			panic(err)
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "not create uuid"})
 		}
 		server.CreatedAt = time.Now().UnixMilli()
 		server.UpdatedAt = time.Now().UnixMilli()
