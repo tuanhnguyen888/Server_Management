@@ -9,10 +9,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jasonlvhit/gocron"
 	"github.com/joho/godotenv"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
 	gomail "gopkg.in/gomail.v2"
 )
+
+func Cron(r models.Repository) {
+	gocron.Every(1).Day().At("18:40:59").Do(UpdateServerPeriodic, &r)
+	gocron.Every(1).Day().At("18:40:59").Do(SendEmail, &r)
+	<-gocron.Start()
+}
 
 func UpdateServerPeriodic(r *models.Repository) {
 
@@ -71,7 +78,7 @@ func SendEmail(r *models.Repository) {
 		}
 	}
 
-	msg := fmt.Sprintf("SERVERS ON : %s \n SERVERS OFF : %s ", strconv.Itoa(serverOn), strconv.Itoa(serverOff))
+	msg := fmt.Sprintf("Total number of server : %s \nSERVERS ON : %s \nSERVERS OFF : %s ", strconv.Itoa(len(servers)), strconv.Itoa(serverOn), strconv.Itoa(serverOff))
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", mail)
@@ -80,7 +87,7 @@ func SendEmail(r *models.Repository) {
 	m.SetHeader("Subject", "Report Servers "+time.Now().Format("01-02-2006"))
 	m.SetBody("text/plain", msg)
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, mail, pwd)
+	d := gomail.NewDialer("smtp.gmail.com", 587, mail, "tfmqxyapencmiczf")
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	// send

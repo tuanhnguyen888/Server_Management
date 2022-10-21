@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/tuanhnguyen888/Server_Management/app/controllers"
 	"github.com/tuanhnguyen888/Server_Management/app/models"
 	"github.com/tuanhnguyen888/Server_Management/flatform"
 	"github.com/tuanhnguyen888/Server_Management/pkg/routes"
@@ -32,8 +33,7 @@ func main() {
 	routes.PublicRoutes(app, &r)
 	routes.PrivateRoutes(app, &r)
 
-	// gocron.Every(1).Second().Do(controllers.UpdateServerPeriodic, &r)
-	// <-gocron.Start()
+	go controllers.Cron(r)
 
 	if err := app.Listen(":5000"); err != nil {
 		log.Printf(" Server is not running! Reason: %v", err)
