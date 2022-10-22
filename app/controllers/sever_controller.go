@@ -30,6 +30,18 @@ an error if existing then we will define an appropriate behavior for each error.
 4. Read the comments in GetServers then correct all the mistakes for all APIs.
 */
 
+// GetServers func gets all exists server or HTTP 400.
+// @Description Get all exists server.
+// @Summary get all exists Server
+// @Tags Server Public
+// @Accept json
+// @Produce json
+// @Param page query string false "search by page"
+// @Param sort query string false "field names to sort"
+// @Param kind query string false "sort type"
+// @Failure 400 {string} status "400"
+// @Success 200 {object} models.Server
+// @Router /api/v1/servers [get]
 func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 	// connect db
 	// TODO (DONE) : init a db instance in main.go then use it for all APIs instead of creating as many as instances for each user request
@@ -75,6 +87,17 @@ func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 	}
 }
 
+// SearchServers func Search server by name or HTTP 400.
+// @Description Search server by name.
+// @Summary Search server by name
+// @Tags Server Public
+// @Accept json
+// @Produce json
+// @Param page query string false "search by page"
+// @Param name query string true " name to search"
+// @Failure 400 {string} status "400"
+// @Success 200 {object} models.Server
+// @Router /api/v1/search [get]
 func Search(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		// ------ pagination ----------
@@ -112,6 +135,16 @@ func Search(r *models.Repository) func(c *fiber.Ctx) error {
 	}
 }
 
+// GetServerByID func gets Server by given ID or 400 error.
+// @Description Get server by given ID.
+// @Summary get Server by given ID
+// @Tags Server Public
+// @Accept json
+// @Produce json
+// @Param id path string true "Server ID"
+// @Success 200 {object} models.Server
+// @Failure 400 {string} status "400"
+// @Router /api/v1/server/{id} [get]
 func GetServerById(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -128,6 +161,15 @@ func GetServerById(r *models.Repository) func(c *fiber.Ctx) error {
 	}
 }
 
+// Login method for login and create a new access token.
+// @Description Create a new access token.
+// @Summary create a new access token
+// @Tags Token
+// @Accept json
+// @Produce json
+// @Success 200 {string} status "ok"
+// @Failure 400 {string} status "400"
+// @Router /login [post]
 func Login(ctx *fiber.Ctx) error {
 	type request struct {
 		Email    string `json:"email"`
@@ -180,6 +222,19 @@ func Login(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// CreateServer func for creates a new Server.
+// @Description Create a new Server.
+// @Summary create a new Server
+// @Tags Server Private
+// @Accept json
+// @Produce json
+// @Param name body string true "name Server "
+// @Param ipv4 body string true "ipv4 Server "
+// @Success 200 {object} models.Server
+// @Failure 400 {string} status "400"
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
+// @Router /api/v1/server [post]
 func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		timeNow := time.Now().Unix()
@@ -234,6 +289,20 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 	}
 }
 
+// UpdateServer func for updates Server by given ID.
+// @Description Update Server.
+// @Summary update Server
+// @Tags Server Private
+// @Accept json
+// @Produce json
+// @Param id path string true "Server ID"
+// @Param name body string true "name Server "
+// @Param ipv4 body string true "ipv4 Server "
+// @Failure 400 {string} status "400"
+// @Success 200 {string} status "ok"
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
+// @Router /api/v1/server/{id} [post]
 func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		timeNow := time.Now().Unix()
@@ -290,6 +359,17 @@ func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 
 }
 
+// DeleteServer func for deletes Server by given ID.
+// @Description Delete Server by given ID.
+// @Summary delete Server by given ID
+// @Tags Server Private
+// @Accept json
+// @Produce json
+// @Param id path string true "Server ID"
+// @Success 204 {string} status "ok"
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
+// @Router /api/v1/server/{id} [delete]
 func DeleteServer(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

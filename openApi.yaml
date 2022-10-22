@@ -1,0 +1,241 @@
+definitions:
+  models.Server:
+    properties:
+      created_at:
+        type: integer
+      id:
+        type: string
+      ipvd4:
+        type: string
+      name:
+        type: string
+      status:
+        type: boolean
+      update_at:
+        type: integer
+    required:
+    - id
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  description: Công ty VCS hiện tại có gồm khoảng 10000 server. App xây dựng 1 hệ
+    thống quản lý trạng thái On/Off của danh sách server này.
+  title: Server Management
+  version: "1.0"
+paths:
+  /api/v1/search:
+    get:
+      consumes:
+      - application/json
+      description: Search server by name.
+      parameters:
+      - description: search by page
+        in: query
+        name: page
+        type: string
+      - description: ' name to search'
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: "400"
+          schema:
+            type: string
+      summary: Search server by name
+      tags:
+      - Server Public
+  /api/v1/server:
+    post:
+      consumes:
+      - application/json
+      description: Create a new Server.
+      parameters:
+      - description: 'name Server '
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: 'ipv4 Server '
+        in: body
+        name: ipv4
+        required: true
+        schema:
+          type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: "400"
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: create a new Server
+      tags:
+      - Server Private
+  /api/v1/server/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Server by given ID.
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: delete Server by given ID
+      tags:
+      - Server Private
+    get:
+      consumes:
+      - application/json
+      description: Get server by given ID.
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: "400"
+          schema:
+            type: string
+      summary: get Server by given ID
+      tags:
+      - Server Public
+    post:
+      consumes:
+      - application/json
+      description: Update Server.
+      parameters:
+      - description: Server ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'name Server '
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: 'ipv4 Server '
+        in: body
+        name: ipv4
+        required: true
+        schema:
+          type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: "400"
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: update Server
+      tags:
+      - Server Private
+  /api/v1/servers:
+    get:
+      consumes:
+      - application/json
+      description: Get all exists server.
+      parameters:
+      - description: search by page
+        in: query
+        name: page
+        type: string
+      - description: field names to sort
+        in: query
+        name: sort
+        type: string
+      - description: sort type
+        in: query
+        name: kind
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Server'
+        "400":
+          description: "400"
+          schema:
+            type: string
+      summary: get all exists Server
+      tags:
+      - Server Public
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Create a new access token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: "400"
+          schema:
+            type: string
+      summary: create a new access token
+      tags:
+      - Token
+swagger: "2.0"

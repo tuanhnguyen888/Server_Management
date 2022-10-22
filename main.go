@@ -9,8 +9,16 @@ import (
 	"github.com/tuanhnguyen888/Server_Management/app/models"
 	"github.com/tuanhnguyen888/Server_Management/flatform"
 	"github.com/tuanhnguyen888/Server_Management/pkg/routes"
+
+	// load API Docs files (Swagger)
+	_ "github.com/tuanhnguyen888/Server_Management/docs"
 )
 
+// @title Server Management
+// @version 1.0
+// @description Công ty VCS hiện tại có gồm khoảng 10000 server. App xây dựng 1 hệ thống quản lý trạng thái On/Off của danh sách server này.
+// @host localhost:5000
+// @BasePath
 func main() {
 
 	db, err := flatform.NewInit()
@@ -30,8 +38,10 @@ func main() {
 
 	app := fiber.New()
 
+	routes.SwaggerRoute(app)
 	routes.PublicRoutes(app, &r)
 	routes.PrivateRoutes(app, &r)
+	routes.NotFoundRoute(app)
 
 	go controllers.Cron(r)
 

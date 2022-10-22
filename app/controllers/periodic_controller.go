@@ -16,8 +16,8 @@ import (
 )
 
 func Cron(r models.Repository) {
-	gocron.Every(1).Day().At("18:40:59").Do(UpdateServerPeriodic, &r)
-	gocron.Every(1).Day().At("18:40:59").Do(SendEmail, &r)
+	gocron.Every(1).Day().At("2:25:59").Do(UpdateServerPeriodic, &r)
+	// gocron.Every(1).Day().At("2:24:50").Do(SendEmail, &r)
 	<-gocron.Start()
 }
 
@@ -61,7 +61,7 @@ func SendEmail(r *models.Repository) {
 		log.Fatal(err)
 	}
 	mail := os.Getenv("EMAIL_ACCOUNT")
-	pwd := os.Getenv("EMAIL_PASSWPRD")
+	// pwd := os.Getenv("EMAIL_PASSWPRD")
 
 	servers := []models.Server{}
 

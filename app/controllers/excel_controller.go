@@ -84,7 +84,7 @@ func ImportExcel(c *fiber.Ctx) error {
 		Error() string
 	}
 
-	xlsx, err := excelize.OpenFile("./demoImport.xlsx")
+	xlsx, err := excelize.OpenFile("./listOfServers.xlsx")
 	if err != nil {
 		c.Status(http.StatusBadRequest).JSON(
 			&fiber.Map{"message": "could not import Server"})
