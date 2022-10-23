@@ -16,8 +16,12 @@ import (
 )
 
 func Cron(r models.Repository) {
-	gocron.Every(1).Day().At("2:25:59").Do(UpdateServerPeriodic, &r)
-	// gocron.Every(1).Day().At("2:24:50").Do(SendEmail, &r)
+	gocron.Every(1).Day().At("01:15:59").Do(UpdateServerPeriodic, &r)
+	gocron.Every(1).Day().At("01:15:50").Do(SendEmail, &r)
+
+	// gocron.Every(3).Hour().Do(UpdateServerPeriodic, &r)
+	// gocron.Every(1).Day().At("00:00").Do(UpdateServerPeriodic, &r)
+
 	<-gocron.Start()
 }
 
@@ -33,10 +37,10 @@ func UpdateServerPeriodic(r *models.Repository) {
 			server.Status = !server.Status
 			err = r.DB.Where("name = ? ", server.Name).Updates(&server).Error
 			if err != nil {
-				fmt.Println("message : could not update Server " + *server.Ipv4)
+				ErrorLogger.Println("message : could not update Server " + *server.Ipv4)
 				continue
 			}
-			fmt.Println(*server.Ipv4 + " has been update ON -> OFF")
+			InfoLogger.Println(*server.Ipv4 + " has been update ON -> OFF")
 			continue
 		}
 
@@ -44,10 +48,10 @@ func UpdateServerPeriodic(r *models.Repository) {
 			server.Status = !server.Status
 			err = r.DB.Where("name = ? ", server.Name).Updates(&server).Error
 			if err != nil {
-				fmt.Println("message : could not update Server " + *server.Ipv4)
+				ErrorLogger.Println("message : could not update Server " + *server.Ipv4)
 				continue
 			}
-			fmt.Println(*server.Ipv4 + " has been update OFF -> ON")
+			InfoLogger.Println(*server.Ipv4 + " has been update OFF -> ON")
 			continue
 		}
 
@@ -87,7 +91,7 @@ func SendEmail(r *models.Repository) {
 	m.SetHeader("Subject", "Report Servers "+time.Now().Format("01-02-2006"))
 	m.SetBody("text/plain", msg)
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, mail, "tfmqxyapencmiczf")
+	d := gomail.NewDialer("smtp.gmail.com", 587, mail, "ikvjpolypjwerykg")
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	// send
@@ -97,4 +101,6 @@ func SendEmail(r *models.Repository) {
 		// panic here will make program/service stop, which is an unexpected behavior.
 		log.Fatal(err)
 	}
+
+	InfoLogger.Println("......done........")
 }

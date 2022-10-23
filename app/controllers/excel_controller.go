@@ -130,9 +130,9 @@ func ImportExcel(c *fiber.Ctx) error {
 
 		_, err = exec.Command("ping", *server.Ipv4).Output()
 		if err != nil {
-			server.Status = true
-		} else {
 			server.Status = false
+		} else {
+			server.Status = true
 		}
 
 		server.CreatedAt = time.Now().UnixMilli()

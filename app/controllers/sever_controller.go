@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -72,6 +74,7 @@ func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 				&fiber.Map{
 					"message": "could not export excel",
 				})
+			return err
 		}
 		// TODO: Handle error for JSON method
 		c.Status(http.StatusOK).JSON(
@@ -124,6 +127,7 @@ func Search(r *models.Repository) func(c *fiber.Ctx) error {
 				&fiber.Map{
 					"message": "Can't find the right servers",
 				})
+			return nil
 		}
 
 		c.Status(http.StatusOK).JSON(
@@ -182,12 +186,14 @@ func Login(ctx *fiber.Ctx) error {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "cannot parse json",
 		})
+		return err
 	}
 
 	if body.Email != "tuanh@gmail.com" || body.Password != "khong123" {
 		ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Bad Credentials",
 		})
+		return nil
 	}
 
 	// Create the Claims
@@ -206,6 +212,7 @@ func Login(ctx *fiber.Ctx) error {
 		ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "cannot singed tolen",
 		})
+		return err
 	}
 
 	ctx.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -237,47 +244,45 @@ func Login(ctx *fiber.Ctx) error {
 // @Router /api/v1/server [post]
 func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		timeNow := time.Now().Unix()
 
-		user := c.Locals("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
-		expires := int64(claims["exp"].(float64))
-
-		if timeNow > expires {
-			// Return status 401 and unauthorized error message.
-			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": true,
-				"msg":   "unauthorized, check expiration time of your token",
-			})
-		}
 		// ---------------
 		server := Server{}
 		err := c.BodyParser(&server)
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "not request"})
+			return err
 		}
 
 		server.ID, err = uuid.NewV1()
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "not create uuid"})
+			return err
 		}
-		server.CreatedAt = time.Now().UnixMilli()
-		server.UpdatedAt = time.Now().UnixMilli()
 
+		err = checkIPAddress(*server.Ipv4)
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "Address Invalid"})
+			return err
+		}
 		// pinggg net
 		_, err = exec.Command("ping", *server.Ipv4).Output()
 		if err != nil {
-			server.Status = true
-		} else {
 			server.Status = false
+		} else {
+			server.Status = true
 		}
 
+		server.CreatedAt = time.Now().UnixMilli()
+		server.UpdatedAt = time.Now().UnixMilli()
+		// -------
 		err = r.DB.Create(&server).Error
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "could not create Server"})
+			return err
 		}
 
 		c.Status(http.StatusOK).JSON(
@@ -305,19 +310,7 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 // @Router /api/v1/server/{id} [post]
 func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		timeNow := time.Now().Unix()
 
-		user := c.Locals("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
-		expires := int64(claims["exp"].(float64))
-
-		if timeNow > expires {
-			// Return status 401 and unauthorized error message.
-			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": true,
-				"msg":   "unauthorized, check expiration time of your token",
-			})
-		}
 		// ----
 		id := c.Params("id")
 
@@ -330,10 +323,17 @@ func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 		err = c.BodyParser(&server)
 
 		if err != nil {
-			c.Status(http.StatusUnprocessableEntity).JSON(
+			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "not request"})
+			return err
 		}
 
+		err = checkIPAddress(*server.Ipv4)
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "Address Invalid"})
+			return err
+		}
 		_, err = exec.Command("ping", *server.Ipv4).Output()
 		if err != nil {
 			server.Status = false
@@ -346,6 +346,7 @@ func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "could not update Server"})
+			return err
 		}
 
 		server.ID = u3
@@ -394,4 +395,15 @@ func DeleteServer(r *models.Repository) func(c *fiber.Ctx) error {
 		return nil
 	}
 
+}
+
+// validate ip
+func checkIPAddress(ip string) error {
+	if net.ParseIP(ip) == nil {
+		ErrorLogger.Printf("IP Address: %s - Invalid\n", ip)
+		return errors.New("Address Invalid")
+	} else {
+		ErrorLogger.Printf("IP Address: %s - Valid\n", ip)
+		return nil
+	}
 }
