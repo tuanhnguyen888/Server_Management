@@ -68,14 +68,14 @@ func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 		}
 
 		// TODO (DONE): refactor exportToExcel to return an error then handle it
-		err := exportToExcel(*servers)
-		if err != nil {
-			c.Status(http.StatusBadRequest).JSON(
-				&fiber.Map{
-					"message": "could not export excel",
-				})
-			return err
-		}
+		//err := exportToExcel(*servers)
+		//if err != nil {
+		//	c.Status(http.StatusBadRequest).JSON(
+		//		&fiber.Map{
+		//			"message": "could not export excel",
+		//		})
+		//	return err
+		//}
 		// TODO: Handle error for JSON method
 		c.Status(http.StatusOK).JSON(
 			&fiber.Map{
@@ -97,7 +97,7 @@ func GetServers(r *models.Repository) func(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query string false "search by page"
-// @Param name query string true " name to search"
+// @Param name query string true "name to search"
 // @Failure 400 {string} status "400"
 // @Success 200 {object} models.Server
 // @Router /api/v1/search [get]
@@ -114,13 +114,10 @@ func Search(r *models.Repository) func(c *fiber.Ctx) error {
 		// ----search
 
 		servers := &[]models.Server{}
-		n := c.Query("name")
 
-		if n != "" {
-			r.DB.Where("name LIKE ?  ", "%"+n+"%").Offset(offset).Limit(perPage).Find((&servers))
-		} else {
-			r.DB.Offset(offset).Limit(perPage).Find((&servers))
-		}
+		v := c.Query("value")
+
+		r.DB.Where("name LIKE ?", "%"+v+"%").Order("name").Offset(offset).Limit(perPage).Find(&servers)
 
 		if len(*servers) == 0 {
 			c.Status(http.StatusBadRequest).JSON(
@@ -173,7 +170,7 @@ func GetServerById(r *models.Repository) func(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {string} status "ok"
 // @Failure 400 {string} status "400"
-// @Router /login [post]
+// @Router /api/v1/login [post]
 func Login(ctx *fiber.Ctx) error {
 	type request struct {
 		Email    string `json:"email"`
@@ -237,6 +234,7 @@ func Login(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param name body string true "name Server "
 // @Param ipv4 body string true "ipv4 Server "
+// @Param status body string false "status Server"
 // @Success 200 {object} models.Server
 // @Failure 400 {string} status "400"
 // @Security ApiKeyAuth
@@ -250,7 +248,14 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 		err := c.BodyParser(&server)
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
-				&fiber.Map{"message": "not request"})
+				&fiber.Map{"message": "not parser body data"})
+			return err
+		}
+
+		err = CheckName(r, server.Name)
+		if err != nil {
+			c.Status(http.StatusBadRequest).JSON(
+				&fiber.Map{"message": "Server is duplicated"})
 			return err
 		}
 
@@ -268,12 +273,12 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 			return err
 		}
 		// pinggg net
-		_, err = exec.Command("ping", *server.Ipv4).Output()
-		if err != nil {
-			server.Status = false
-		} else {
-			server.Status = true
-		}
+		// _, err = exec.Command("ping", *server.Ipv4).Output()
+		// if err != nil {
+		// 	server.Status = false
+		// } else {
+		// 	server.Status = true
+		// }
 
 		server.CreatedAt = time.Now().UnixMilli()
 		server.UpdatedAt = time.Now().UnixMilli()
@@ -302,6 +307,7 @@ func CreateServer(r *models.Repository) func(c *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Server ID"
 // @Param name body string true "name Server "
+// @Param status body string true "status Server"
 // @Param ipv4 body string true "ipv4 Server "
 // @Failure 400 {string} status "400"
 // @Success 200 {string} status "ok"
@@ -321,7 +327,6 @@ func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 
 		server := Server{}
 		err = c.BodyParser(&server)
-
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "not request"})
@@ -334,6 +339,7 @@ func UpdateServer(r *models.Repository) func(c *fiber.Ctx) error {
 				&fiber.Map{"message": "Address Invalid"})
 			return err
 		}
+
 		_, err = exec.Command("ping", *server.Ipv4).Output()
 		if err != nil {
 			server.Status = false
@@ -386,6 +392,7 @@ func DeleteServer(r *models.Repository) func(c *fiber.Ctx) error {
 		if err != nil {
 			c.Status(http.StatusBadRequest).JSON(
 				&fiber.Map{"message": "could not delete Server"})
+			return nil
 		}
 
 		c.Status(http.StatusOK).JSON(
@@ -395,6 +402,22 @@ func DeleteServer(r *models.Repository) func(c *fiber.Ctx) error {
 		return nil
 	}
 
+}
+
+// validate name
+func CheckName(r *models.Repository, name *string) error {
+	allServers := []Server{}
+	r.DB.Find(&allServers)
+	sameName := false
+	for _, s := range allServers {
+		if *name == *s.Name {
+			sameName = true
+		}
+	}
+	if sameName {
+		return errors.New("server name is duplicated")
+	}
+	return nil
 }
 
 // validate ip

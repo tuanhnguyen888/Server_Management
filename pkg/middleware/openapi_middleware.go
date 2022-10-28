@@ -38,10 +38,8 @@ func OpenapiInputValidator(openApiFile string) func(c *fiber.Ctx) {
 		httpReq := &http.Request{}
 		route, pathParams, _ := router.FindRoute(&http.Request{})
 
-		var requestValidationInput *openapi3filter.RequestValidationInput
-
 		// Validate Request
-		requestValidationInput = &openapi3filter.RequestValidationInput{
+		requestValidationInput := &openapi3filter.RequestValidationInput{
 			Request:    httpReq,
 			PathParams: pathParams,
 			Route:      route,
@@ -49,7 +47,6 @@ func OpenapiInputValidator(openApiFile string) func(c *fiber.Ctx) {
 
 		if erro := openapi3filter.ValidateRequest(ctx, requestValidationInput); erro != nil {
 			// panic(err)
-			fmt.Errorf(erro.Error())
 			fmt.Println("Fail")
 		}
 

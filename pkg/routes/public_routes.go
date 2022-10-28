@@ -12,4 +12,5 @@ func PublicRoutes(app *fiber.App, r *models.Repository) {
 	route.Get("/servers", controllers.GetServers(r))
 	route.Get("/server/:id", controllers.GetServerById(r))
 	route.Get("/search", controllers.Search(r))
+	route.Post("/exportServer", controllers.ExportServerToExcel(r))
 }

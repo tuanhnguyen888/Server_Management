@@ -1,0 +1,112 @@
+INFO: 2022/10/28 03:49:02 periodic_controller.go:124: success  demo s1 SLY0G4QBO4vatW1Zl4Zf
+INFO: 2022/10/28 03:49:05 periodic_controller.go:124: success  AARNet SbY0G4QBO4vatW1ZpIYo
+INFO: 2022/10/28 03:49:09 periodic_controller.go:124: success  Exetel SrY0G4QBO4vatW1ZsoYe
+INFO: 2022/10/28 03:49:12 periodic_controller.go:124: success  Beam Barossa S7Y0G4QBO4vatW1Zvobe
+INFO: 2022/10/28 03:49:15 periodic_controller.go:124: success  Optus TLY0G4QBO4vatW1Zy4ah
+INFO: 2022/10/28 03:49:19 periodic_controller.go:124: success  GComm Pty Ltd TbY0G4QBO4vatW1Z2IZw
+INFO: 2022/10/28 03:49:22 periodic_controller.go:124: success  Valve Networks TrY0G4QBO4vatW1Z5YYr
+INFO: 2022/10/28 03:49:25 periodic_controller.go:124: success  APNIC Pty Ltd T7Y0G4QBO4vatW1Z8Yb_
+INFO: 2022/10/28 03:49:28 periodic_controller.go:124: success  Frontier Networks ULY0G4QBO4vatW1Z_4YC
+INFO: 2022/10/28 03:49:32 periodic_controller.go:124: success  Over the Wire UbY1G4QBO4vatW1ZC4bb
+INFO: 2022/10/28 03:49:35 periodic_controller.go:124: success  Elypsys UrY1G4QBO4vatW1ZGIau
+INFO: 2022/10/28 03:49:38 periodic_controller.go:124: success  PHREEK Solutions U7Y1G4QBO4vatW1ZJYbM
+INFO: 2022/10/28 03:49:42 periodic_controller.go:124: success  VMvault VLY1G4QBO4vatW1ZMoaK
+INFO: 2022/10/28 03:50:01 periodic_controller.go:124: success  demo s7 VbY1G4QBO4vatW1ZfoYM
+INFO: 2022/10/28 03:50:04 periodic_controller.go:124: success  GCOMM Pty. Ltd. VrY1G4QBO4vatW1Ziob6
+INFO: 2022/10/28 03:50:08 periodic_controller.go:124: success  Christie Networks V7Y1G4QBO4vatW1Zl4bK
+INFO: 2022/10/28 03:50:26 periodic_controller.go:73: 150.101.135.90 has been update ON -> OFF
+INFO: 2022/10/28 03:50:46 periodic_controller.go:73: 98.142.236.193 has been update ON -> OFF
+INFO: 2022/10/28 03:50:49 periodic_controller.go:124: success  UberGlobal WrY2G4QBO4vatW1ZOYbe
+INFO: 2022/10/28 03:51:08 periodic_controller.go:73: 103.7.91.187 has been update ON -> OFF
+INFO: 2022/10/28 03:51:08 periodic_controller.go:73:  198.142.236.72 has been update ON -> OFF
+INFO: 2022/10/28 03:51:27 periodic_controller.go:73: 103.48.89.31 has been update ON -> OFF
+INFO: 2022/10/28 03:51:46 periodic_controller.go:73: 168.191.0.1 has been update ON -> OFF
+INFO: 2022/10/28 03:52:05 periodic_controller.go:73: 125.235.4.59 has been update ON -> OFF
+INFO: 2022/10/28 03:52:08 periodic_controller.go:124: success  Christie CoWork Pty Ltd YLY3G4QBO4vatW1Zb4ZZ
+INFO: 2022/10/28 03:52:27 periodic_controller.go:73: 125.235.4.59 has been update ON -> OFF
+INFO: 2022/10/28 03:52:46 periodic_controller.go:73: 202.80.67.3 has been update ON -> OFF
+INFO: 2022/10/28 03:53:05 periodic_controller.go:73: 203.21.117.9 has been update ON -> OFF
+INFO: 2022/10/28 03:53:24 periodic_controller.go:73: 203.21.117.9 has been update ON -> OFF
+INFO: 2022/10/28 03:53:27 periodic_controller.go:124: success  Spirit Telecom ZbY4G4QBO4vatW1Zo4bL
+INFO: 2022/10/28 03:53:34 periodic_controller.go:124: success  UBC Web Design ZrY4G4QBO4vatW1Zvoax
+INFO: 2022/10/28 03:53:37 periodic_controller.go:124: success  demo s2 Z7Y4G4QBO4vatW1Zyobv
+INFO: 2022/10/28 03:53:56 periodic_controller.go:124: success  demo s5 aLY5G4QBO4vatW1ZFIYD
+INFO: 2022/10/28 03:53:59 periodic_controller.go:124: success  TasmaNet Pty Ltd abY5G4QBO4vatW1ZIIbA
+INFO: 2022/10/28 03:54:02 periodic_controller.go:124: success  Redfox Corporation Pty Ltd arY5G4QBO4vatW1ZLYZS
+INFO: 2022/10/28 03:54:06 periodic_controller.go:124: success  DCS Internet Pty Ltd a7Y5G4QBO4vatW1ZOYbi
+INFO: 2022/10/28 03:54:09 periodic_controller.go:124: success  gtelecom pty ltd bLY5G4QBO4vatW1ZRoZx
+INFO: 2022/10/28 03:54:12 periodic_controller.go:124: success  Vocus Telecommunications bbY5G4QBO4vatW1ZU4YF
+INFO: 2022/10/28 03:54:15 periodic_controller.go:124: success  allMotti brY5G4QBO4vatW1ZX4az
+INFO: 2022/10/28 03:54:19 periodic_controller.go:124: success  Activ8me b7Y5G4QBO4vatW1ZbIZO
+INFO: 2022/10/28 03:54:22 periodic_controller.go:124: success  DGtek cLY5G4QBO4vatW1ZeYZN
+INFO: 2022/10/28 03:54:25 periodic_controller.go:124: success  Vodafone Hutchison Australia (MY) cbY5G4QBO4vatW1ZhoYN
+INFO: 2022/10/28 03:54:28 periodic_controller.go:124: success  Emerge Internet crY5G4QBO4vatW1ZkobP
+INFO: 2022/10/28 03:54:32 periodic_controller.go:124: success  Vodafone Hutchison Australia (PH) c7Y5G4QBO4vatW1Zn4aa
+INFO: 2022/10/28 03:54:35 periodic_controller.go:124: success  Walrus Design dLY5G4QBO4vatW1ZrIaH
+INFO: 2022/10/28 03:54:38 periodic_controller.go:124: success  Colocation Australia dbY5G4QBO4vatW1ZuYa6
+INFO: 2022/10/28 03:54:57 periodic_controller.go:73: 59.153.11.171 has been update ON -> OFF
+INFO: 2022/10/28 03:55:16 periodic_controller.go:73: 202.40.3.147 has been update ON -> OFF
+INFO: 2022/10/28 03:55:16 periodic_controller.go:73:  203.30.68.6 has been update ON -> OFF
+INFO: 2022/10/28 03:55:35 periodic_controller.go:73: 168.1.124.141 has been update ON -> OFF
+INFO: 2022/10/28 03:55:54 periodic_controller.go:73: 150.101.208.148 has been update ON -> OFF
+INFO: 2022/10/28 03:56:13 periodic_controller.go:73: 203.21.118.9 has been update ON -> OFF
+INFO: 2022/10/28 03:56:32 periodic_controller.go:73: 103.224.162.22 has been update ON -> OFF
+INFO: 2022/10/28 03:56:33 periodic_controller.go:73: 185.131.187.252  has been update ON -> OFF
+ERROR: 2022/10/28 03:59:50 sever_controller.go:435: IP Address: 1.1.1.1 - Valid
+INFO: 2022/10/28 05:27:05 periodic_controller.go:202: ......done email........
+INFO: 2022/10/28 05:32:04 periodic_controller.go:202: ......done email........
+INFO: 2022/10/28 05:37:59 periodic_controller.go:230: Cache success data day 10-27-2022
+INFO: 2022/10/28 05:44:04 periodic_controller.go:202: ......done email........
+INFO: 2022/10/28 05:49:03 periodic_controller.go:125: check success demo s1 fraiG4QBO4vatW1ZdIbk
+INFO: 2022/10/28 05:49:22 periodic_controller.go:74: 203.21.117.9 has been update ON -> OFF
+INFO: 2022/10/28 05:49:40 periodic_controller.go:74: 203.21.117.9 has been update ON -> OFF
+INFO: 2022/10/28 05:49:44 periodic_controller.go:102: 1.1.1.1 has been update OFF -> ON
+INFO: 2022/10/28 05:49:47 periodic_controller.go:125: check success AARNet grajG4QBO4vatW1ZJYa0
+INFO: 2022/10/28 05:49:51 periodic_controller.go:125: check success Exetel g7ajG4QBO4vatW1ZMoaC
+INFO: 2022/10/28 05:49:54 periodic_controller.go:125: check success Beam Barossa hLajG4QBO4vatW1ZP4ZJ
+INFO: 2022/10/28 05:49:57 periodic_controller.go:125: check success Optus hbajG4QBO4vatW1ZTIYJ
+INFO: 2022/10/28 05:50:00 periodic_controller.go:125: check success GComm Pty Ltd hrajG4QBO4vatW1ZWIbn
+INFO: 2022/10/28 05:50:04 periodic_controller.go:125: check success Valve Networks h7ajG4QBO4vatW1ZZYav
+INFO: 2022/10/28 05:50:07 periodic_controller.go:125: check success APNIC Pty Ltd iLajG4QBO4vatW1ZcoaC
+INFO: 2022/10/28 05:50:10 periodic_controller.go:125: check success Frontier Networks ibajG4QBO4vatW1Zf4Zs
+INFO: 2022/10/28 05:50:14 periodic_controller.go:125: check success Over the Wire irajG4QBO4vatW1ZjIZD
+INFO: 2022/10/28 05:50:17 periodic_controller.go:125: check success Elypsys i7ajG4QBO4vatW1ZmYYd
+INFO: 2022/10/28 05:50:20 periodic_controller.go:125: check success PHREEK Solutions jLajG4QBO4vatW1ZpoZC
+INFO: 2022/10/28 05:50:23 periodic_controller.go:125: check success VMvault jbajG4QBO4vatW1Zs4YL
+INFO: 2022/10/28 05:50:42 periodic_controller.go:125: check success demo s7 jrajG4QBO4vatW1Z_YYh
+INFO: 2022/10/28 05:50:46 periodic_controller.go:125: check success GCOMM Pty. Ltd. j7akG4QBO4vatW1ZCoYL
+INFO: 2022/10/28 05:50:49 periodic_controller.go:125: check success Christie Networks kLakG4QBO4vatW1ZGIYt
+INFO: 2022/10/28 05:50:53 periodic_controller.go:125: check success UberGlobal kbakG4QBO4vatW1ZJIb4
+INFO: 2022/10/28 05:50:56 periodic_controller.go:125: check success Christie CoWork Pty Ltd krakG4QBO4vatW1ZMYbl
+INFO: 2022/10/28 05:51:15 periodic_controller.go:74: 150.101.135.90 has been update ON -> OFF
+INFO: 2022/10/28 05:51:34 periodic_controller.go:74: 98.142.236.193 has been update ON -> OFF
+INFO: 2022/10/28 05:51:53 periodic_controller.go:74: 103.7.91.187 has been update ON -> OFF
+INFO: 2022/10/28 05:51:53 periodic_controller.go:74:  198.142.236.72 has been update ON -> OFF
+INFO: 2022/10/28 05:52:12 periodic_controller.go:74: 103.48.89.31 has been update ON -> OFF
+INFO: 2022/10/28 05:52:31 periodic_controller.go:74: 168.191.0.1 has been update ON -> OFF
+INFO: 2022/10/28 05:52:50 periodic_controller.go:74: 125.235.4.59 has been update ON -> OFF
+INFO: 2022/10/28 05:52:54 periodic_controller.go:125: check success Spirit Telecom mralG4QBO4vatW1Z-4bo
+INFO: 2022/10/28 05:53:08 periodic_controller.go:125: check success UBC Web Design m7amG4QBO4vatW1ZN4Zt
+INFO: 2022/10/28 05:53:27 periodic_controller.go:74: 125.235.4.59 has been update ON -> OFF
+INFO: 2022/10/28 05:53:47 periodic_controller.go:74: 202.80.67.3 has been update ON -> OFF
+INFO: 2022/10/28 05:53:50 periodic_controller.go:125: check success demo s2 nramG4QBO4vatW1Z2YZ8
+INFO: 2022/10/28 05:54:09 periodic_controller.go:125: check success demo s5 n7anG4QBO4vatW1ZI4a-
+INFO: 2022/10/28 05:54:12 periodic_controller.go:125: check success TasmaNet Pty Ltd oLanG4QBO4vatW1ZMIaH
+INFO: 2022/10/28 05:54:15 periodic_controller.go:125: check success Redfox Corporation Pty Ltd obanG4QBO4vatW1ZPYYe
+INFO: 2022/10/28 05:54:19 periodic_controller.go:125: check success DCS Internet Pty Ltd oranG4QBO4vatW1ZSYau
+INFO: 2022/10/28 05:54:22 periodic_controller.go:125: check success gtelecom pty ltd o7anG4QBO4vatW1ZVoZN
+INFO: 2022/10/28 05:54:25 periodic_controller.go:125: check success Vocus Telecommunications pLanG4QBO4vatW1ZYob0
+INFO: 2022/10/28 05:54:28 periodic_controller.go:125: check success allMotti pbanG4QBO4vatW1Zb4bb
+INFO: 2022/10/28 05:54:32 periodic_controller.go:125: check success Activ8me pranG4QBO4vatW1ZfIZw
+INFO: 2022/10/28 05:54:35 periodic_controller.go:125: check success DGtek p7anG4QBO4vatW1ZiYZ0
+INFO: 2022/10/28 05:54:38 periodic_controller.go:125: check success Vodafone Hutchison Australia (MY) qLanG4QBO4vatW1ZloZq
+INFO: 2022/10/28 05:54:42 periodic_controller.go:125: check success Emerge Internet qbanG4QBO4vatW1Zo4Yx
+INFO: 2022/10/28 05:54:45 periodic_controller.go:125: check success Vodafone Hutchison Australia (PH) qranG4QBO4vatW1ZsIYD
+INFO: 2022/10/28 05:54:48 periodic_controller.go:125: check success Walrus Design q7anG4QBO4vatW1ZvoY6
+INFO: 2022/10/28 05:54:52 periodic_controller.go:125: check success Colocation Australia rLanG4QBO4vatW1Zy4Zu
+INFO: 2022/10/28 05:55:11 periodic_controller.go:74: 59.153.11.171 has been update ON -> OFF
+INFO: 2022/10/28 05:55:30 periodic_controller.go:74: 202.40.3.147 has been update ON -> OFF
+INFO: 2022/10/28 05:55:30 periodic_controller.go:74:  203.30.68.6 has been update ON -> OFF
+INFO: 2022/10/28 05:55:49 periodic_controller.go:74: 168.1.124.141 has been update ON -> OFF
+INFO: 2022/10/28 05:56:08 periodic_controller.go:74: 150.101.208.148 has been update ON -> OFF
+INFO: 2022/10/28 05:56:27 periodic_controller.go:74: 203.21.118.9 has been update ON -> OFF

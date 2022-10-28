@@ -16,6 +16,72 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/importServerFromExcel": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create Server by Excel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server Private"
+                ],
+                "summary": "Create Server by Excel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/login": {
+            "post": {
+                "description": "Create a new access token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Token"
+                ],
+                "summary": "create a new access token",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "400",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/search": {
             "get": {
                 "description": "Search server by name.",
@@ -38,8 +104,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": " name to search",
+                        "description": "name to search",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "value to search",
+                        "name": "value",
                         "in": "query",
                         "required": true
                     }
@@ -93,6 +165,14 @@ const docTemplate = `{
                         "name": "ipv4",
                         "in": "body",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "status Server",
+                        "name": "status",
+                        "in": "body",
                         "schema": {
                             "type": "string"
                         }
@@ -186,6 +266,15 @@ const docTemplate = `{
                     {
                         "description": "name Server ",
                         "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "status Server",
+                        "name": "status",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -305,35 +394,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Server"
-                        }
-                    },
-                    "400": {
-                        "description": "400",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "description": "Create a new access token.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Token"
-                ],
-                "summary": "create a new access token",
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "400": {

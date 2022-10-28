@@ -19,12 +19,13 @@ import (
 // @description Công ty VCS hiện tại có gồm khoảng 10000 server. App xây dựng 1 hệ thống quản lý trạng thái On/Off của danh sách server này.
 // @host localhost:5000
 // @BasePath
+
 func main() {
 
 	db, err := flatform.NewInit()
 	if err != nil {
-		fmt.Println("can not connect")
-		panic(err)
+		controllers.ErrorLogger.Println("can not connect DB")
+		log.Fatal(err)
 	}
 
 	r := models.Repository{
@@ -33,20 +34,31 @@ func main() {
 
 	err = models.MigrateServer(db)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+	}
+
+	esclient, err := flatform.GetESClient()
+	if err != nil {
+		fmt.Println("Error initializing : ", err)
+		panic("Client fail ")
+	}
+
+	redisClient, err := flatform.NewInitResdis()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	app := fiber.New()
 
 	routes.SwaggerRoute(app)
 	routes.PublicRoutes(app, &r)
-	routes.PrivateRoutes(app, &r)
+	routes.PrivateRoutes(app, &r, redisClient)
 	routes.NotFoundRoute(app)
 
-	go controllers.Cron(r)
+	go controllers.Cron(r, redisClient, esclient)
 
 	if err := app.Listen(":5000"); err != nil {
-		log.Printf(" Server is not running! Reason: %v", err)
+		controllers.ErrorLogger.Printf(" Server is not running! Reason: %v", err)
 		// should use log.Fatal instead to terminate the program when cannot start service.
 		// e.g: log.Fatal(app.Listen(":5000"))
 		log.Fatal(err)

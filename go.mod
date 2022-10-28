@@ -6,6 +6,7 @@ require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/getkin/kin-openapi v0.106.0
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/gofiber/swagger v0.1.6
 	github.com/gofrs/uuid v4.3.0+incompatible
@@ -45,11 +46,13 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
+	github.com/olivere/elastic/v7 v7.0.32 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

@@ -5,7 +5,7 @@ definitions:
         type: integer
       id:
         type: string
-      ipvd4:
+      ipv4:
         type: string
       name:
         type: string
@@ -24,6 +24,48 @@ info:
   title: Server Management
   version: "1.0"
 paths:
+  /api/v1/importServerFromExcel:
+    post:
+      consumes:
+      - application/json
+      description: Create Server by Excel
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Create Server by Excel
+      tags:
+      - Server Private
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Create a new access token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: "400"
+          schema:
+            type: string
+      summary: create a new access token
+      tags:
+      - Token
   /api/v1/search:
     get:
       consumes:
@@ -34,9 +76,13 @@ paths:
         in: query
         name: page
         type: string
-      - description: ' name to search'
+      - description: name to search
         in: query
         name: name
+        type: string
+      - description: value to search
+        in: query
+        name: value
         required: true
         type: string
       produces:
@@ -69,6 +115,11 @@ paths:
         in: body
         name: ipv4
         required: true
+        schema:
+          type: string
+      - description: status Server
+        in: body
+        name: status
         schema:
           type: string
       - description: Authorization
@@ -160,6 +211,12 @@ paths:
         required: true
         schema:
           type: string
+      - description: status Server
+        in: body
+        name: status
+        required: true
+        schema:
+          type: string
       - description: 'ipv4 Server '
         in: body
         name: ipv4
@@ -219,23 +276,4 @@ paths:
       summary: get all exists Server
       tags:
       - Server Public
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Create a new access token.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            type: string
-        "400":
-          description: "400"
-          schema:
-            type: string
-      summary: create a new access token
-      tags:
-      - Token
 swagger: "2.0"

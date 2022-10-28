@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db: 
+    container_name:  db-server
+    image: "postgres:latest"
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: khong123
+      POSTGRES_DB: server_bttt
+    volumes:
+     - pgdata:/var/lib/postgresql/data
+  go: 
+    container_name: go
+    build: 
+      context: .
+    depends_on:
+      - "db"
+volumes:
+  pgdata:
+
+
